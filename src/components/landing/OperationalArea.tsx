@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { EASE_OUT, MQ, fadeUp, gsap, reveal, revealUp, stagger, useGSAP } from '../../lib/motion'
 import { ABS, Tag, Lines, at, bodyClass, cn, headingClass } from './primitives'
 
 type Region = 'norte' | 'centro' | 'sul'
@@ -51,20 +53,53 @@ const ZOOM_MIN = 1
 const ZOOM_MAX = 2.5
 const ZOOM_STEP = 0.5
 
+
+/* Spring used when a city becomes the focus (big pin drop). */
+const PIN_SPRING = { type: 'spring', stiffness: 420, damping: 18 } as const
+
 function AngolaMap({ selected, onSelect }: { selected: City; onSelect: (city: City) => void }) {
   const [zoom, setZoom] = useState(1)
+  const root = useRef<HTMLDivElement>(null)
   const tip = tipOf(selected)
   const flip = tip.y > 400
 
+  /*
+   * GSAP entrance when the map scrolls into view: the 3D extrusion builds up layer by layer (bottom first),
+   * the city pins drop in, then the focused pin + tooltip appear. All tweens end at the original positions.
+   */
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia()
+      mm.add(MQ.motionOk, () => {
+        const tl = gsap.timeline({
+          defaults: { ease: 'expo.out' },
+          scrollTrigger: { trigger: root.current, start: 'top 75%', once: true },
+        })
+        tl.from('[data-layer]', { autoAlpha: 0, y: 46, duration: 1.1, stagger: 0.045 })
+          .from('[data-pin]', { autoAlpha: 0, y: -26, duration: 0.7, ease: 'back.out(2.2)', stagger: { each: 0.035, from: 'random' } }, '-=0.55')
+          .from('[data-focus]', { autoAlpha: 0, duration: 0.5 }, '-=0.2')
+          .from('[data-zoom]', { autoAlpha: 0, x: 16, duration: 0.8 }, '<')
+      })
+    },
+    { scope: root },
+  )
+
   return (
-    <div className="relative mt-8 aspect-[1374.45/557.61] w-full overflow-hidden rounded-[16px] border border-line bg-map sm:rounded-[24px] desk:absolute desk:top-[291.52px] desk:left-[0.97px] desk:mt-0 desk:aspect-auto desk:h-[557.61px] desk:w-[1374.45px]">
-      <div
-        className="absolute inset-0 transition-transform duration-500 ease-out"
-        style={{ transform: `scale(${zoom})`, transformOrigin: `${px(tip.x)} ${py(tip.y)}` }}
+    <div
+      ref={root}
+      className="relative mt-8 aspect-[1374.45/557.61] w-full overflow-hidden rounded-[16px] border border-line bg-map sm:rounded-[24px] desk:absolute desk:top-[291.52px] desk:left-[0.97px] desk:mt-0 desk:aspect-auto desk:h-[557.61px] desk:w-[1374.45px]"
+    >
+      {/* Zoom eases towards the focused city. */}
+      <motion.div
+        className="absolute inset-0"
+        animate={{ scale: zoom }}
+        transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+        style={{ transformOrigin: `${px(tip.x)} ${py(tip.y)}` }}
       >
         {LAYERS.map((layer, i) => (
           <img
             key={layer.top}
+            data-layer
             src={layer.src}
             alt=""
             aria-hidden="true"
@@ -78,10 +113,11 @@ function AngolaMap({ selected, onSelect }: { selected: City; onSelect: (city: Ci
           return (
             <button
               key={city.name}
+              data-pin
               type="button"
               aria-label={`${city.name}, ${city.province}`}
               onClick={() => onSelect(city)}
-              className="absolute h-[21px] w-4 -translate-x-1/2 -translate-y-full cursor-pointer transition-transform hover:scale-125 max-sm:h-[12px] max-sm:w-[9px]"
+              className="absolute h-[21px] w-4 origin-bottom -translate-x-1/2 -translate-y-full cursor-pointer transition-[scale] duration-300 hover:scale-130 max-sm:h-[12px] max-sm:w-[9px]"
               style={{ left: px(t.x), top: py(t.y) }}
             >
               <img src="/assets/pin-city.svg" alt="" className="size-full" />
@@ -89,60 +125,87 @@ function AngolaMap({ selected, onSelect }: { selected: City; onSelect: (city: Ci
           )
         })}
 
-        <div
-          className="pointer-events-none absolute h-[44px] w-[34px] -translate-x-1/2 -translate-y-full max-sm:scale-60 max-sm:origin-bottom"
-          style={{ left: px(tip.x), top: py(tip.y) }}
-        >
-          <img src="/assets/pin-huambo.svg" alt="" className="absolute top-[-4px] left-[-7.92px] h-[60px] w-[49.85px] max-w-none" />
-        </div>
+        <div data-focus className="pointer-events-none absolute inset-0">
+          {/* Focused city pin: drops in with a spring each time the selection changes. */}
+          <AnimatePresence>
+            <motion.div
+              key={selected.name}
+              initial={{ opacity: 0, y: -34, scale: 0.6 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.18 } }}
+              transition={PIN_SPRING}
+              className="absolute h-[44px] w-[34px] origin-bottom -translate-x-1/2 -translate-y-full max-sm:scale-60"
+              style={{ left: px(tip.x), top: py(tip.y) }}
+            >
+              <img src="/assets/pin-huambo.svg" alt="" className="absolute top-[-4px] left-[-7.92px] h-[60px] w-[49.85px] max-w-none" />
+            </motion.div>
+          </AnimatePresence>
 
-        <div
-          role="status"
-          className="absolute hidden h-[90px] w-[200px] sm:block"
-          style={{
-            left: px(tip.x),
-            top: py(tip.y),
-            transform: flip ? 'translate(-50%, calc(-100% - 50px))' : 'translate(-50%, 6px)',
-            transformOrigin: flip ? 'bottom center' : 'top center',
-          }}
-        >
-          <img
-            src="/assets/tooltip-pointer.svg"
-            alt=""
-            className={cn('absolute left-[90px] h-[21.52px] w-[19.56px]', flip ? 'top-[68.48px] rotate-180' : 'top-0')}
-          />
+          {/* Tooltip: outer box keeps the Figma offset (translate), inner box animates. */}
           <div
-            className={cn(
-              'absolute left-0 h-[69.45px] w-[200px] overflow-hidden rounded-[6px] bg-white shadow-[0px_4px_14px_0px_rgba(33,37,41,0.1)]',
-              flip ? 'top-0' : 'top-[20.53px]',
-            )}
+            role="status"
+            className="absolute hidden h-[90px] w-[200px] sm:block"
+            style={{
+              left: px(tip.x),
+              top: py(tip.y),
+              transform: flip ? 'translate(-50%, calc(-100% - 50px))' : 'translate(-50%, 6px)',
+            }}
           >
-            <img src="/assets/icon-pin.svg" alt="" className="absolute top-[29.34px] left-[13.69px] size-[19.56px]" />
-            <p className="absolute top-[15.42px] left-[44.02px] text-[16px] leading-5 whitespace-nowrap text-ink">{selected.name}</p>
-            <p className="absolute top-[43.83px] left-[44.02px] text-[14px] leading-[18px] whitespace-nowrap text-muted">{selected.province}</p>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selected.name}
+                initial={{ opacity: 0, y: flip ? -10 : 10, scale: 0.94 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: flip ? -6 : 6, scale: 0.96, transition: { duration: 0.15 } }}
+                transition={{ duration: 0.45, ease: EASE_OUT, delay: 0.08 }}
+                className="relative size-full"
+                style={{ transformOrigin: flip ? 'bottom center' : 'top center' }}
+              >
+                <img
+                  src="/assets/tooltip-pointer.svg"
+                  alt=""
+                  className={cn('absolute left-[90px] h-[21.52px] w-[19.56px]', flip ? 'top-[68.48px] rotate-180' : 'top-0')}
+                />
+                <div
+                  className={cn(
+                    'absolute left-0 h-[69.45px] w-[200px] overflow-hidden rounded-[6px] bg-white shadow-[0px_4px_14px_0px_rgba(33,37,41,0.1)]',
+                    flip ? 'top-0' : 'top-[20.53px]',
+                  )}
+                >
+                  <img src="/assets/icon-pin.svg" alt="" className="absolute top-[29.34px] left-[13.69px] size-[19.56px]" />
+                  <p className="absolute top-[15.42px] left-[44.02px] text-[16px] leading-5 whitespace-nowrap text-ink">{selected.name}</p>
+                  <p className="absolute top-[43.83px] left-[44.02px] text-[14px] leading-[18px] whitespace-nowrap text-muted">{selected.province}</p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="absolute right-[39.12px] bottom-[39.13px] hidden w-[54.77px] overflow-hidden rounded-[6px] bg-white shadow-[0px_2px_8px_0px_rgba(33,37,41,0.08)] md:block">
-        <button
+      <div
+        data-zoom
+        className="absolute right-[39.12px] bottom-[39.13px] hidden w-[54.77px] overflow-hidden rounded-[6px] bg-white shadow-[0px_2px_8px_0px_rgba(33,37,41,0.08)] md:block"
+      >
+        <motion.button
           type="button"
           aria-label="Aproximar"
           disabled={zoom >= ZOOM_MAX}
+          whileTap={{ scale: 0.88 }}
           onClick={() => setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP))}
           className="flex h-[54.78px] w-full cursor-pointer items-center justify-center transition-colors hover:bg-canvas disabled:cursor-default disabled:opacity-40"
         >
           <img src="/assets/icon-plus.svg" alt="" className="size-[19.56px]" />
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           type="button"
           aria-label="Afastar"
           disabled={zoom <= ZOOM_MIN}
+          whileTap={{ scale: 0.88 }}
           onClick={() => setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP))}
           className="flex h-[54.78px] w-full cursor-pointer items-center justify-center transition-colors hover:bg-canvas disabled:cursor-default disabled:opacity-40"
         >
           <img src="/assets/icon-minus.svg" alt="" className="size-[19.56px]" />
-        </button>
+        </motion.button>
       </div>
     </div>
   )
@@ -160,14 +223,16 @@ export function OperationalArea() {
       <Tag width={199.56} className={ABS} style={at(0, 6.84)}>
         Área de Operação
       </Tag>
-      <h2 id="area-title" className={cn(headingClass, 'mt-5 desk:mt-0', ABS)} style={at(0, 70.41)}>
+      <motion.h2 {...revealUp(0.08)} id="area-title" className={cn(headingClass, 'mt-5 desk:mt-0', ABS)} style={at(0, 70.41)}>
         <Lines lines={['Viagens de Autocarro', 'Por Toda a Angola']} />
-      </h2>
-      <p className={cn(bodyClass, 'mt-3 desk:mt-0 desk:whitespace-nowrap', ABS)} style={at(0, 213.92)}>
+      </motion.h2>
+      <motion.p {...revealUp(0.16)} className={cn(bodyClass, 'mt-3 desk:mt-0 desk:whitespace-nowrap', ABS)} style={at(0, 213.92)}>
         Encontre rotas para as principais cidades do país.
-      </p>
+      </motion.p>
 
-      <div
+      <motion.div
+        {...reveal}
+        variants={stagger(0.1, 0.1)}
         role="group"
         aria-label="Regiões"
         className="mt-6 flex gap-4 desk:absolute desk:top-[138.91px] desk:left-[1032.06px] desk:mt-0 desk:block desk:h-[102.72px] desk:w-[343.36px]"
@@ -175,35 +240,51 @@ export function OperationalArea() {
         {REGIONS.map((r) => {
           const active = r.id === region
           return (
-            <button
+            <motion.button
               key={r.id}
+              variants={fadeUp}
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.97 }}
               type="button"
               aria-pressed={active}
               aria-label={`Região ${r.label}`}
               onClick={() => setSelected(CITIES.find((c) => c.name === r.defaultCity)!)}
-              className={cn(
-                'relative h-[102.72px] w-[103.69px] shrink-0 cursor-pointer overflow-hidden rounded-[8px] border bg-canvas transition-colors desk:absolute desk:top-0 desk:left-(--x)',
-                active ? 'border-muted' : 'border-line hover:border-[#c4c9ce]',
-              )}
+              className="relative h-[102.72px] w-[103.69px] shrink-0 cursor-pointer rounded-[8px] border border-line bg-canvas transition-colors hover:border-[#c4c9ce] desk:absolute desk:top-0 desk:left-(--x)"
               style={at(r.x, 0)}
             >
               <span className="absolute top-[0.95px] left-[0.95px] block h-[98.8px] w-[99.77px] overflow-hidden rounded-[6px] bg-map">
                 <img src="/assets/map-angola-mini.svg" alt="" className="absolute top-0 left-0 h-[99px] w-[100px] max-w-none" />
                 <img src={r.highlight} alt="" className="absolute top-0 left-0 h-[99px] w-[100px] max-w-none" />
               </span>
-            </button>
+              {/* Selected outline glides between tiles (shared layout animation); drawn over the 1px border. */}
+              {active && (
+                <motion.span
+                  layoutId="region-ring"
+                  transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                  className="pointer-events-none absolute -inset-px rounded-[8px] border border-muted"
+                />
+              )}
+            </motion.button>
           )
         })}
-      </div>
+      </motion.div>
 
       <AngolaMap selected={selected} onSelect={setSelected} />
 
       <div className="mt-3 flex items-center gap-3 rounded-[12px] bg-white px-4 py-3 shadow-[0px_4px_14px_0px_rgba(33,37,41,0.1)] sm:hidden" aria-hidden="true">
         <img src="/assets/icon-pin.svg" alt="" className="size-[19.56px]" />
-        <span>
-          <span className="block text-[16px] leading-5 text-ink">{selected.name}</span>
-          <span className="mt-1 block text-[14px] leading-[18px] text-muted">{selected.province}</span>
-        </span>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={selected.name}
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.25, ease: EASE_OUT }}
+          >
+            <span className="block text-[16px] leading-5 text-ink">{selected.name}</span>
+            <span className="mt-1 block text-[14px] leading-[18px] text-muted">{selected.province}</span>
+          </motion.span>
+        </AnimatePresence>
       </div>
     </section>
   )

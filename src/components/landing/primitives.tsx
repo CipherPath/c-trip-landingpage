@@ -1,4 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react'
+import { motion } from 'framer-motion'
+import { revealUp } from '../../lib/motion'
 
 export const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ')
@@ -26,19 +28,23 @@ export function Lines({ lines }: { lines: readonly string[] }) {
   )
 }
 
+/** Section eyebrow pill; fades up into place when scrolled into view. */
 export function Tag({
   children,
   width,
   className,
   style,
+  delay = 0,
 }: {
   children: ReactNode
   width: number
   className?: string
   style?: CSSProperties
+  delay?: number
 }) {
   return (
-    <span
+    <motion.span
+      {...revealUp(delay)}
       className={cn(
         'inline-flex h-[40.11px] items-center justify-center rounded-full bg-brand-soft px-6 text-[16px] leading-5 whitespace-nowrap text-brand desk:w-(--tag-w) desk:px-0',
         className,
@@ -46,7 +52,7 @@ export function Tag({
       style={{ ...style, ['--tag-w' as string]: `${width}px` }}
     >
       {children}
-    </span>
+    </motion.span>
   )
 }
 
@@ -64,6 +70,7 @@ export function ArrowPillButton({
   style,
   height,
   circleWidth,
+  reveal,
 }: {
   label: string
   href?: string
@@ -72,14 +79,17 @@ export function ArrowPillButton({
   style?: CSSProperties
   height: number
   circleWidth: number
+  /** Fade up on scroll with this delay (seconds). */
+  reveal?: number
 }) {
   const content = (
     <>
-      <span className="pl-[31.3px] text-[16px] leading-5 font-medium whitespace-nowrap text-white">
+      <span className="relative pl-[31.3px] text-[16px] leading-5 font-medium whitespace-nowrap text-white">
         {label}
       </span>
+      {/* Hover: a soft ring appears around the circle and the arrow turns to point right. */}
       <span
-        className="absolute top-0 right-0 flex h-full items-center justify-center rounded-full border-2 border-brand bg-canvas"
+        className="absolute top-0 right-0 flex h-full items-center justify-center rounded-full border-2 border-brand bg-canvas transition-[box-shadow] duration-500 group-hover:shadow-[0_0_0_6px_rgba(33,125,80,0.16)]"
         style={{ width: circleWidth }}
       >
         <img
@@ -87,7 +97,7 @@ export function ArrowPillButton({
           alt=""
           width={23.47}
           height={23.47}
-          className="size-[23.47px] transition-transform duration-300 group-hover:rotate-45"
+          className="size-[23.47px] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:rotate-45"
         />
       </span>
     </>
@@ -96,16 +106,20 @@ export function ArrowPillButton({
     'group relative flex items-center overflow-hidden rounded-full bg-brand transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
     className,
   )
+  const motionProps = {
+    whileTap: { scale: 0.985 },
+    ...(reveal !== undefined ? revealUp(reveal) : {}),
+  }
   if (href) {
     return (
-      <a href={href} className={classes} style={{ ...style, height }}>
+      <motion.a href={href} className={classes} style={{ ...style, height }} {...motionProps}>
         {content}
-      </a>
+      </motion.a>
     )
   }
   return (
-    <button type={type ?? 'button'} className={cn(classes, 'cursor-pointer text-left')} style={{ ...style, height }}>
+    <motion.button type={type ?? 'button'} className={cn(classes, 'cursor-pointer text-left')} style={{ ...style, height }} {...motionProps}>
       {content}
-    </button>
+    </motion.button>
   )
 }

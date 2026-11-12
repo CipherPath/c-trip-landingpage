@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { MotionConfig } from 'framer-motion'
 import { About } from '../components/landing/About'
 import { Faq } from '../components/landing/Faq'
 import { Footer, Newsletter } from '../components/landing/Footer'
@@ -16,22 +17,24 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   return (
-    <div className="overflow-x-clip">
-      <div className="canvas mx-auto pb-2 desk:w-full desk:pb-[15.64px]">
-        <Hero />
-        <main className="desk:w-[1440px] mx-auto">
-          <Highlights />
-          <About />
-          <Stats />
-          <WhyUs />
-          <Services />
-          <OperationalArea />
-          <Testimonials />
-          <Faq />
-          <Newsletter />
-        </main>
-        <Footer />
+    <MotionConfig reducedMotion="user">
+      <div className="overflow-x-clip">
+        <div className="canvas mx-auto pb-2 desk:w-full desk:pb-[15.64px]">
+          <Hero />
+          <main className="desk:w-[1440px] mx-auto">
+            <Highlights />
+            <About />
+            <Stats />
+            <WhyUs />
+            <Services />
+            <OperationalArea />
+            <Testimonials />
+            <Faq />
+            <Newsletter />
+          </main>
+          <Footer />
+        </div>
       </div>
-    </div>
+    </MotionConfig>
   )
 }

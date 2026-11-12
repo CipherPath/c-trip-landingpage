@@ -34,6 +34,14 @@ body {
   }
 }
 
+/* Elements revealed by the GSAP hero intro stay hidden until it runs (no flash of the final state).
+   Only when JS is on (html.js, set in the head) and the user accepts motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-intro] {
+    visibility: hidden;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

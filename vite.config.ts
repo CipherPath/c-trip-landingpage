@@ -9,6 +9,11 @@ export default defineConfig({
   },
   resolve: {
     tsconfigPaths: true,
+    dedupe: ['react', 'react-dom'],
+  },
+  optimizeDeps: {
+    // Pre-bundle the animation libs up front so Vite never re-optimizes mid-session (duplicate React copies).
+    include: ['gsap', 'gsap/ScrollTrigger', '@gsap/react', 'framer-motion'],
   },
   plugins: [
     tailwindcss(),

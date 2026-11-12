@@ -1,4 +1,8 @@
+import { motion } from 'framer-motion'
+import { clipReveal, revealUp } from '../../lib/motion'
 import { ABS, Lines, Tag, at, bodyClass, cn, headingClass } from './primitives'
+
+const cardReveal = clipReveal(20)
 
 const SERVICES = [
   {
@@ -41,20 +45,25 @@ export function Services() {
       <Tag width={179.02} className={ABS} style={at(0.97, 4.88)}>
         Os Nossos Serviços
       </Tag>
-      <h2 className={cn(headingClass, 'mt-5 desk:mt-0', ABS)} style={at(0.97, 70.41)}>
+      <motion.h2 {...revealUp(0.08)} className={cn(headingClass, 'mt-5 desk:mt-0', ABS)} style={at(0.97, 70.41)}>
         <Lines lines={['Escolha o Serviço Ideal', 'Para a Sua Viagem']} />
-      </h2>
-      <p className={cn(bodyClass, 'mt-3 desk:absolute desk:top-[148.38px] desk:right-[1.1px] desk:mt-0 desk:text-right desk:whitespace-nowrap')}>
+      </motion.h2>
+      <motion.p {...revealUp(0.2)} className={cn(bodyClass, 'mt-3 desk:absolute desk:top-[148.38px] desk:right-[1.1px] desk:mt-0 desk:text-right desk:whitespace-nowrap')}>
         <Lines lines={['A C-TRIP oferece várias formas de viajar por estrada,', 'adaptadas às suas necessidades.']} />
-      </p>
+      </motion.p>
 
       <div className="mt-10 grid w-full gap-4 md:grid-cols-2 desk:mt-0 desk:block">
-        {SERVICES.map((service) => {
+        {SERVICES.map((service, i) => {
           const active = 'active' in service && service.active
           return (
-            <a
+            <motion.a
               key={service.title}
               href="#reservas"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.25 }}
+              variants={cardReveal}
+              custom={(i % 2) * 0.12}
               className="group relative block h-[340px] overflow-hidden rounded-[20px] text-white md:h-auto md:aspect-[675.97/400.11] desk:absolute desk:top-(--y) desk:left-(--x) desk:aspect-auto desk:h-[400.11px] desk:w-[675.97px]"
               style={at(service.x, service.y)}
             >
@@ -87,7 +96,7 @@ export function Services() {
                   <Lines lines={service.body} />
                 </span>
               </span>
-            </a>
+            </motion.a>
           )
         })}
       </div>

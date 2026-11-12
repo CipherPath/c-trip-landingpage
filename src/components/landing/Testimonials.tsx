@@ -1,5 +1,31 @@
 import type { CSSProperties } from 'react'
+import { motion } from 'framer-motion'
+import type { Variants } from 'framer-motion'
+import { EASE_OUT, revealUp, stagger } from '../../lib/motion'
 import { Lines, Tag, at, bodyClass, cn, headingClass } from './primitives'
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 60 },
+  show: { opacity: 1, y: 0, transition: { duration: 1, ease: EASE_OUT, when: 'beforeChildren', staggerChildren: 0.06 } },
+  hover: { y: -6, boxShadow: '0px 20px 44px 0px rgba(33,37,41,0.10)', transition: { duration: 0.4, ease: EASE_OUT } },
+}
+
+/* Photo settles from a slight zoom; on hover it zooms back in a touch. */
+const photoVariants: Variants = {
+  hidden: { scale: 1.14 },
+  show: { scale: 1, transition: { duration: 1.6, ease: EASE_OUT } },
+  hover: { scale: 1.04, transition: { duration: 0.8, ease: EASE_OUT } },
+}
+
+const quoteVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_OUT } },
+}
+
+const starVariants: Variants = {
+  hidden: { opacity: 0, scale: 0, rotate: -30 },
+  show: { opacity: 1, scale: 1, rotate: 0, transition: { type: 'spring', stiffness: 420, damping: 14 } },
+}
 
 type Testimonial = {
   name: string
@@ -69,24 +95,30 @@ const TESTIMONIALS: readonly Testimonial[] = [
 
 function Stars() {
   return (
-    <span className="flex gap-[3.42px] pt-[0.48px] pl-[0.97px]" role="img" aria-label="5 de 5 estrelas">
+    <motion.span variants={stagger(0.07, 0.35)} className="flex gap-[3.42px] pt-[0.48px] pl-[0.97px]" role="img" aria-label="5 de 5 estrelas">
       {Array.from({ length: 5 }, (_, i) => (
-        <span key={i} className="relative size-[16.63px]">
+        <motion.span key={i} variants={starVariants} className="relative size-[16.63px]">
           <img src="/assets/icon-star.svg" alt="" className="absolute top-0 left-0 h-[17.6px] w-[18.5px] max-w-none" />
-        </span>
+        </motion.span>
       ))}
-    </span>
+    </motion.span>
   )
 }
 
 function TestimonialCard({ t }: { t: Testimonial }) {
   const photoLeft = t.photoSide === 'left'
   return (
-    <figure
+    <motion.figure
+      initial="hidden"
+      whileInView="show"
+      whileHover="hover"
+      viewport={{ once: true, amount: 0.3 }}
+      variants={cardVariants}
       className="relative flex flex-col overflow-hidden rounded-[20px] border border-[#d3d8dd] bg-canvas sm:flex-row desk:absolute desk:top-(--y) desk:left-(--x) desk:block desk:h-(--h) desk:w-(--w)"
       style={at(t.x, t.y, { w: t.w, h: t.h })}
     >
-      <img
+      <motion.img
+        variants={photoVariants}
         src={t.photo}
         alt=""
         loading="lazy"
@@ -99,13 +131,13 @@ function TestimonialCard({ t }: { t: Testimonial }) {
         className="relative flex flex-col px-[22.47px] pt-[21.5px] pb-[22.49px] sm:w-1/2 desk:absolute desk:inset-y-0 desk:left-(--x) desk:w-[300px] desk:px-0"
         style={at(t.textX - 1, 0)}
       >
-        <img src="/assets/icon-quote.svg" alt="" className="ml-[2.94px] h-[21.52px] w-[23.47px]" />
-        <blockquote className={cn(bodyClass, 'mt-[30.01px] text-ink desk:whitespace-nowrap')}>
+        <motion.img variants={quoteVariants} src="/assets/icon-quote.svg" alt="" className="ml-[2.94px] h-[21.52px] w-[23.47px]" />
+        <motion.blockquote variants={quoteVariants} className={cn(bodyClass, 'mt-[30.01px] text-ink desk:whitespace-nowrap')}>
           <p>
             <Lines lines={t.quote} />
           </p>
-        </blockquote>
-        <figcaption className="mt-8 flex items-start desk:mt-auto">
+        </motion.blockquote>
+        <motion.figcaption variants={quoteVariants} className="mt-8 flex items-start desk:mt-auto">
           <span className="relative size-[47.92px] shrink-0 overflow-hidden rounded-full">
             <img src={t.photo} alt="" loading="lazy" className="absolute max-w-none" style={t.avatar} />
           </span>
@@ -115,9 +147,9 @@ function TestimonialCard({ t }: { t: Testimonial }) {
               <Stars />
             </span>
           </span>
-        </figcaption>
+        </motion.figcaption>
       </div>
-    </figure>
+    </motion.figure>
   )
 }
 
@@ -130,20 +162,21 @@ export function Testimonials() {
       <Tag width={200.53} className="desk:absolute desk:top-[5.86px] desk:left-[589.88px]">
         O Que Dizem
       </Tag>
-      <h2
+      <motion.h2
+        {...revealUp(0.08)}
         id="testemunhos-title"
         className={cn(headingClass, 'mt-5 desk:absolute desk:top-[71.39px] desk:left-[689.19px] desk:mt-0 desk:-translate-x-1/2')}
       >
         <Lines lines={['A Experiência de Quem', 'Viaja com a C-TRIP']} />
-      </h2>
-      <p className={cn(bodyClass, 'mt-3 desk:absolute desk:top-[212.95px] desk:left-[688.69px] desk:mt-0 desk:-translate-x-1/2 desk:whitespace-nowrap')}>
+      </motion.h2>
+      <motion.p {...revealUp(0.16)} className={cn(bodyClass, 'mt-3 desk:absolute desk:top-[212.95px] desk:left-[688.69px] desk:mt-0 desk:-translate-x-1/2 desk:whitespace-nowrap')}>
         <Lines
           lines={[
             'Acreditamos que a satisfação dos passageiros é a medida da qualidade do nosso serviço.',
             'Estas são as histórias de quem já viajou connosco.',
           ]}
         />
-      </p>
+      </motion.p>
 
       <div className="mt-10 grid w-full gap-4 text-left lg:grid-cols-2 desk:mt-0 desk:block">
         {TESTIMONIALS.map((t) => (

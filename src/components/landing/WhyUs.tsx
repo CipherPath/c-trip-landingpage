@@ -1,4 +1,24 @@
+import { motion } from 'framer-motion'
+import type { Variants } from 'framer-motion'
+import { EASE_OUT, reveal, revealUp, stagger } from '../../lib/motion'
 import { ABS, Lines, Tag, at, bodyClass, cn, headingClass } from './primitives'
+
+/* Cards rise in sequence; the featured one also tilts into its 1.3° angle (CSS rotate + motion rotate). */
+const cardVariants: Variants = {
+  hidden: (featured: boolean) => ({ opacity: 0, y: 64, rotate: featured ? -4 : 0 }),
+  show: { opacity: 1, y: 0, rotate: 0, transition: { duration: 1, ease: EASE_OUT } },
+  hover: (featured: boolean) => ({
+    y: -8,
+    boxShadow: featured ? '0px 22px 44px 0px rgba(33,37,41,0.16)' : '0px 18px 40px 0px rgba(33,37,41,0.10)',
+    transition: { duration: 0.4, ease: EASE_OUT },
+  }),
+}
+
+const illusVariants: Variants = {
+  hidden: { scale: 0.85, opacity: 0 },
+  show: { scale: 1, opacity: 1, transition: { duration: 0.9, ease: EASE_OUT, delay: 0.2 } },
+  hover: { y: -6, scale: 1.05, transition: { type: 'spring', stiffness: 260, damping: 14 } },
+}
 
 type Card = {
   title: string
@@ -76,29 +96,34 @@ export function WhyUs() {
       <Tag width={210.33} className={ABS} style={at(601.63, 12.72)}>
         As Nossas Vantagens
       </Tag>
-      <h2
+      <motion.h2
+        {...revealUp(0.08)}
         id="vantagens-title"
         className={cn(headingClass, 'mt-5 desk:absolute desk:top-[78.25px] desk:left-[704.34px] desk:mt-0 desk:-translate-x-1/2')}
       >
         <Lines lines={['O Que Nos Torna', 'Diferentes']} />
-      </h2>
-      <p className={cn(bodyClass, 'mt-3 desk:absolute desk:top-[219.8px] desk:left-[704.34px] desk:mt-0 desk:-translate-x-1/2 desk:whitespace-nowrap')}>
+      </motion.h2>
+      <motion.p {...revealUp(0.16)} className={cn(bodyClass, 'mt-3 desk:absolute desk:top-[219.8px] desk:left-[704.34px] desk:mt-0 desk:-translate-x-1/2 desk:whitespace-nowrap')}>
         <Lines lines={['Juntamos as melhores transportadoras com tecnologia simples,', 'para que viajar de autocarro seja mais cómodo e seguro.']} />
-      </p>
+      </motion.p>
 
-      <div className="mt-10 grid w-full gap-4 md:grid-cols-2 desk:mt-0 desk:block">
+      <motion.div {...reveal} viewport={{ once: true, amount: 0.15 }} variants={stagger(0.12)} className="mt-10 grid w-full gap-4 md:grid-cols-2 desk:mt-0 desk:block">
         {CARDS.map((card) => (
-          <article
+          <motion.article
             key={card.title}
+            custom={!!card.featured}
+            variants={cardVariants}
+            whileHover="hover"
             className={cn(
-              'relative flex flex-col items-center overflow-hidden rounded-[16px] border bg-canvas px-5 pt-6 pb-7 transition-transform duration-300 desk:absolute desk:top-(--y) desk:left-(--x) desk:block desk:h-[360px] desk:w-(--w) desk:p-0',
+              'relative flex flex-col items-center overflow-hidden rounded-[16px] border bg-canvas px-5 pt-6 pb-7 desk:absolute desk:top-(--y) desk:left-(--x) desk:block desk:h-[360px] desk:w-(--w) desk:p-0',
               card.featured
                 ? 'border-[#eef0f2] shadow-[0px_10px_30px_0px_rgba(33,37,41,0.1)] desk:rotate-[1.3deg]'
-                : 'border-line hover:-translate-y-1',
+                : 'border-line',
             )}
             style={at(card.x, card.y, { w: card.w })}
           >
-            <img
+            <motion.img
+              variants={illusVariants}
               src={card.illus.src}
               alt=""
               loading="lazy"
@@ -119,9 +144,9 @@ export function WhyUs() {
             >
               <Lines lines={card.body} />
             </p>
-          </article>
+          </motion.article>
         ))}
-      </div>
+      </motion.div>
     </section>
   )
 }

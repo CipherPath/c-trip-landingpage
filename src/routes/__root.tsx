@@ -9,7 +9,7 @@ import {
 import appCss from '../styles/app.css?url'
 
 /* Scales the 1440px desktop canvas to fit viewports between 1200px and 1440px (runs before first paint). */
-const canvasZoomScript = `(function(){var d=document.documentElement;function f(){var w=d.clientWidth;d.style.setProperty('--canvas-zoom',String(w>=1200&&w<1440?w/1440:1))}f();if(window.ResizeObserver){new ResizeObserver(f).observe(d)}else{addEventListener('resize',f)}})()`
+const canvasZoomScript = `(function(){var d=document.documentElement;d.classList.add('js');function f(){var w=d.clientWidth;d.style.setProperty('--canvas-zoom',String(w>=1200&&w<1440?w/1440:1))}f();if(window.ResizeObserver){new ResizeObserver(f).observe(d)}else{addEventListener('resize',f)}})()`
 
 export const Route = createRootRoute({
   head: () => ({
