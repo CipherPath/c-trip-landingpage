@@ -1,1 +1,41 @@
 @import 'tailwindcss' source('../');
+
+@theme {
+  /* Desktop layout: the 1440px Figma canvas (scaled down between 1200px and 1440px). */
+  --breakpoint-desk: 75rem;
+
+  --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand: #217d50;
+  --color-brand-dark: #1a6541;
+  --color-brand-soft: #edf8f2;
+  --color-ink: #212529;
+  --color-body: #495057;
+  --color-muted: #868e96;
+  --color-subtle: #6c757d;
+  --color-line: #dee2e6;
+  --color-canvas: #f8f9fa;
+  --color-map: #edf1ee;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-canvas font-sans text-ink antialiased;
+}
+
+/* The desktop canvas is authored at 1440px and zoomed to fit viewports between 1200px and 1440px.
+   --canvas-zoom is set by an inline script in the document head (see __root.tsx). */
+@media (min-width: 75rem) {
+  .canvas {
+    zoom: var(--canvas-zoom, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
