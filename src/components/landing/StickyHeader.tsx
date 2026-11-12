@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion'
 import type { MotionValue } from 'framer-motion'
+import { useRouterState } from '@tanstack/react-router'
 import { NAV_LINKS } from '../../constants/cities'
 import { EASE_OUT } from '../../lib/motion'
 import { cn } from './primitives'
+import { SmartLink } from '../site/SmartLink'
 
 /** Scroll distance after which the fixed header takes over from the hero navbar. */
 export const STICKY_THRESHOLD = 80
@@ -46,8 +48,10 @@ export function StickyHeader() {
     if (!next) setOpen(false)
   })
 
-  // Only the first link pointing at a section gets the highlight (Promoções and Notícias share #novidades).
-  const activeLabel = NAV_LINKS.find((l) => l.href === `#${active}`)?.label
+  // Home: the link of the section in view (scroll-spy). Other pages: the link of the current route.
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const activeLabel =
+    pathname === '/' ? NAV_LINKS.find((l) => l.spy === active)?.label : NAV_LINKS.find((l) => l.href === pathname)?.label
 
   return (
     <AnimatePresence>
@@ -61,15 +65,15 @@ export function StickyHeader() {
           className="fixed inset-x-0 top-2 z-50 px-2 sm:top-3 sm:px-4"
         >
           <div className="relative mx-auto flex h-16 w-full max-w-[1408.69px] items-center justify-between overflow-hidden rounded-[18px] border border-white/70 bg-white/80 pr-2.5 pl-4 shadow-[0px_10px_30px_0px_rgba(33,37,41,0.10)] backdrop-blur-xl sm:pl-5">
-            <a href="#reservas" className="block h-8 w-[82px] shrink-0" aria-label="C-TRIP — início">
+            <SmartLink href="/" className="block h-8 w-[82px] shrink-0" aria-label="C-TRIP — início">
               <img src="/assets/logo.png" alt="C-TRIP" width={82} height={32} className="size-full object-contain" />
-            </a>
+            </SmartLink>
 
             <nav aria-label="Principal (fixo)" className="hidden items-center gap-1 desk:flex">
               {NAV_LINKS.map((link) => {
                 const isActive = link.label === activeLabel
                 return (
-                  <a
+                  <SmartLink
                     key={link.label}
                     href={link.href}
                     aria-current={isActive ? 'true' : undefined}
@@ -86,7 +90,7 @@ export function StickyHeader() {
                       />
                     )}
                     <span className="relative">{link.label}</span>
-                  </a>
+                  </SmartLink>
                 )
               })}
             </nav>
@@ -140,7 +144,7 @@ export function StickyHeader() {
                 className="mx-auto mt-2 flex max-w-[1408.69px] origin-top flex-col gap-1 rounded-[18px] border border-white/70 bg-white/90 p-3 shadow-[0px_10px_30px_0px_rgba(33,37,41,0.10)] backdrop-blur-xl desk:hidden"
               >
                 {NAV_LINKS.map((link) => (
-                  <a
+                  <SmartLink
                     key={link.label}
                     href={link.href}
                     onClick={() => setOpen(false)}
@@ -150,7 +154,7 @@ export function StickyHeader() {
                     )}
                   >
                     {link.label}
-                  </a>
+                  </SmartLink>
                 ))}
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <a href="#" className="rounded-[12px] px-3 py-3 text-center text-[16px] leading-5 text-ink ring-1 ring-line">

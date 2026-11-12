@@ -1,6 +1,9 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { revealUp } from '../../lib/motion'
+import { SmartLink } from '../site/SmartLink'
+
+const MotionSmartLink = motion.create(SmartLink)
 
 export const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ')
@@ -37,7 +40,8 @@ export function Tag({
   delay = 0,
 }: {
   children: ReactNode
-  width: number
+  /** Fixed Figma width on desktop; omit for the auto-width "Site/Tag" (24px side padding). */
+  width?: number
   className?: string
   style?: CSSProperties
   delay?: number
@@ -46,10 +50,11 @@ export function Tag({
     <motion.span
       {...revealUp(delay)}
       className={cn(
-        'inline-flex h-[40.11px] items-center justify-center rounded-full bg-brand-soft px-6 text-[16px] leading-5 whitespace-nowrap text-brand desk:w-(--tag-w) desk:px-0',
+        'inline-flex h-[40.11px] items-center justify-center rounded-full bg-brand-soft px-6 text-[16px] leading-5 whitespace-nowrap text-brand',
+        width !== undefined && 'desk:w-(--tag-w) desk:px-0',
         className,
       )}
-      style={{ ...style, ['--tag-w' as string]: `${width}px` }}
+      style={width !== undefined ? { ...style, ['--tag-w' as string]: `${width}px` } : style}
     >
       {children}
     </motion.span>
@@ -112,9 +117,9 @@ export function ArrowPillButton({
   }
   if (href) {
     return (
-      <motion.a href={href} className={classes} style={{ ...style, height }} {...motionProps}>
+      <MotionSmartLink href={href} className={classes} style={{ ...style, height }} {...motionProps}>
         {content}
-      </motion.a>
+      </MotionSmartLink>
     )
   }
   return (

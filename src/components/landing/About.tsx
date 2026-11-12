@@ -66,7 +66,7 @@ export function About() {
           />
         </motion.p>
         <ArrowPillButton
-          href="#servicos"
+          href="/sobre"
           label="Saber Mais Sobre Nós"
           height={86.08}
           circleWidth={86.08}

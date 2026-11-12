@@ -13,6 +13,17 @@ import { Testimonials } from '../components/landing/Testimonials'
 import { WhyUs } from '../components/landing/WhyUs'
 
 export const Route = createFileRoute('/')({
+  head: () => ({
+    links: [
+      {
+        rel: 'preload',
+        as: 'image',
+        href: '/assets/hero-bg-1920.jpg',
+        imageSrcSet: '/assets/hero-bg-mobile.jpg 1280w, /assets/hero-bg-1920.jpg 1920w, /assets/hero-bg.jpg 2560w',
+        imageSizes: '100vw',
+      },
+    ],
+  }),
   component: HomePage,
 })
 

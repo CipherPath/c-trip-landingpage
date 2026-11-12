@@ -1,105 +1,9 @@
 import { useRef, useState } from 'react'
-import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import type { FormEvent, RefObject } from 'react'
 import { ABS, ArrowPillButton, Lines, at, cn } from './primitives'
-import { CITIES, NAV_LINKS } from '../../constants/cities'
-import { EASE_OUT, MQ, gsap, useGSAP } from '../../lib/motion'
-import { STICKY_THRESHOLD } from './StickyHeader'
-
-function Navbar() {
-  const [open, setOpen] = useState(false)
-  // Fades and lifts away while the fixed header (StickyHeader) slides in over the same scroll distance.
-  const { scrollY } = useScroll()
-  const navOpacity = useTransform(scrollY, [0, STICKY_THRESHOLD], [1, 0])
-  const navY = useTransform(scrollY, [0, STICKY_THRESHOLD], [0, -16])
-
-  return (
-    <motion.header style={{ opacity: navOpacity, y: navY }} className="relative z-10 flex w-full items-center justify-between desk:absolute desk:inset-x-0 desk:top-0 desk:block desk:h-[80.22px]">
-      <a data-intro="nav" href="#reservas" className={cn('block h-[39px] w-[100px]', ABS)} style={at(23.36, 21.36)} aria-label="C-TRIP — início">
-        <img src="/assets/logo.png" alt="C-TRIP" width={100} height={39} className="size-full object-cover" />
-      </a>
-
-      <nav aria-label="Principal" className="hidden desk:absolute desk:top-[30.1px] desk:left-[444.13px] desk:block desk:h-5 desk:w-[518.47px]">
-        {NAV_LINKS.map((link) => (
-          <a
-            key={link.label}
-            data-intro="nav"
-            href={link.href}
-            className="absolute top-0 text-[16px] leading-5 whitespace-nowrap text-white transition-opacity hover:opacity-75"
-            style={{ left: link.x }}
-          >
-            {link.label}
-          </a>
-        ))}
-      </nav>
-
-      <a
-        data-intro="nav"
-        href="#"
-        className="hidden text-[16px] leading-5 text-white transition-opacity hover:opacity-75 desk:absolute desk:top-[30.11px] desk:left-[1173.91px] desk:block"
-      >
-        Entrar
-      </a>
-      <a
-        data-intro="nav"
-        href="#"
-        className="hidden h-[48.91px] w-[119.34px] items-center justify-center rounded-[12px] bg-white/22 text-[16px] leading-5 text-white backdrop-blur-[2px] transition-colors hover:bg-white/32 desk:absolute desk:top-[16.63px] desk:left-[1264.88px] desk:flex"
-      >
-        Registar
-      </a>
-
-      <button
-        data-intro="nav"
-        type="button"
-        className="flex size-11 cursor-pointer items-center justify-center rounded-[12px] bg-white/22 text-white desk:hidden"
-        aria-expanded={open}
-        aria-controls="mobile-menu"
-        aria-label={open ? 'Fechar menu' : 'Abrir menu'}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          {open ? (
-            <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          ) : (
-            <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          )}
-        </svg>
-      </button>
-
-      <AnimatePresence>
-        {open && (
-        <motion.div
-          id="mobile-menu"
-          initial={{ opacity: 0, y: -10, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -8, scale: 0.98 }}
-          transition={{ duration: 0.25, ease: EASE_OUT }}
-          className="absolute inset-x-0 origin-top top-[56px] z-20 flex flex-col gap-1 rounded-[16px] bg-ink/85 p-3 backdrop-blur-md desk:hidden"
-        >
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={() => setOpen(false)}
-              className="rounded-[10px] px-3 py-2.5 text-[16px] leading-5 text-white hover:bg-white/10"
-            >
-              {link.label}
-            </a>
-          ))}
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <a href="#" className="rounded-[12px] px-3 py-3 text-center text-[16px] leading-5 text-white ring-1 ring-white/30">
-              Entrar
-            </a>
-            <a href="#" className="rounded-[12px] bg-white/22 px-3 py-3 text-center text-[16px] leading-5 text-white">
-              Registar
-            </a>
-          </div>
-        </motion.div>
-      )}
-      </AnimatePresence>
-    </motion.header>
-  )
-}
+import { CITIES } from '../../constants/cities'
+import { MQ, gsap, useGSAP } from '../../lib/motion'
+import { SiteNavbar } from '../site/SiteNavbar'
 
 const inputClass =
   'h-[53.8px] w-full rounded-full border border-line bg-transparent leading-5 text-ink outline-none transition-colors placeholder:text-muted hover:border-[#c4c9ce] focus:border-brand'
@@ -355,7 +259,7 @@ export function Hero() {
     >
       <HeroBackground />
       <div className="relative mx-auto flex w-full max-w-360 flex-col items-center justify-center desk:block desk:h-full desk:w-[1408.69px] desk:max-w-none">
-        <Navbar />
+        <SiteNavbar intro />
 
         <p data-intro="sub" className={cn('relative mt-10 text-[16px] leading-7 desk:mt-0', ABS)} style={at(24.45, 112.19)}>
           <Lines lines={['Compare horários e preços das transportadoras e compre', 'o seu bilhete de autocarro directamente no telemóvel.']} />

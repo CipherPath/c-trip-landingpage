@@ -32,13 +32,6 @@ export const Route = createRootRoute({
         href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap',
       },
       { rel: 'stylesheet', href: appCss },
-      {
-        rel: 'preload',
-        as: 'image',
-        href: '/assets/hero-bg-1920.jpg',
-        imageSrcSet: '/assets/hero-bg-mobile.jpg 1280w, /assets/hero-bg-1920.jpg 1920w, /assets/hero-bg.jpg 2560w',
-        imageSizes: '100vw',
-      },
     ],
   }),
   component: RootComponent,

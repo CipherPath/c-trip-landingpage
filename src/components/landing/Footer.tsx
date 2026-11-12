@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { EASE_OUT, fadeUp, reveal, revealUp, stagger } from '../../lib/motion'
 import { ABS, Lines, at, cn } from './primitives'
+import { SmartLink } from '../site/SmartLink'
 
 /* Footer link hover: underline grows from the left. */
 const linkClass =
@@ -15,22 +16,22 @@ const COLUMNS = [
     title: 'Navegação',
     x: 695.53,
     links: [
-      { label: 'Sobre', href: '#sobre' },
-      { label: 'Serviços', href: '#servicos' },
-      { label: 'Reservas', href: '#reservas' },
-      { label: 'Promoções', href: '#novidades' },
-      { label: 'Notícias', href: '#novidades' },
+      { label: 'Sobre', href: '/sobre' },
+      { label: 'Serviços', href: '/#servicos' },
+      { label: 'Reservas', href: '/#reservas' },
+      { label: 'Promoções', href: '/#novidades' },
+      { label: 'Notícias', href: '/noticias' },
     ],
   },
   {
     title: 'Ajuda',
     x: 959.66,
     links: [
-      { label: 'Centro de Ajuda', href: '#' },
-      { label: 'Termos e Condições', href: '#' },
-      { label: 'Política de Privacidade', href: '#' },
-      { label: 'Consultar Reserva', href: '#' },
-      { label: 'Reembolsos e Alterações', href: '#' },
+      { label: 'Centro de Ajuda', href: '/centro-de-ajuda' },
+      { label: 'Termos e Condições', href: '/termos-e-condicoes' },
+      { label: 'Política de Privacidade', href: '/politica-de-privacidade' },
+      { label: 'Consultar Reserva', href: '/centro-de-ajuda#temas' },
+      { label: 'Reembolsos e Alterações', href: '/termos-e-condicoes#cancelamentos-e-reembolsos' },
     ],
   },
   {
@@ -45,7 +46,8 @@ const COLUMNS = [
   },
 ] as const
 
-export function Newsletter() {
+/** `className` can override the top margin (pages use the Figma 120px spacer instead of the landing's). */
+export function Newsletter({ className }: { className?: string } = {}) {
   const [done, setDone] = useState(false)
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -61,7 +63,10 @@ export function Newsletter() {
       {...revealUp(0, 0.4)}
       id="novidades"
       aria-labelledby="novidades-title"
-      className="relative z-10 mx-4 mt-20 scroll-mt-24 overflow-hidden rounded-[24px] bg-canvas p-6 shadow-[0px_8px_24px_0px_rgba(33,37,41,0.06)] desk:mx-0 desk:mt-[102.73px] desk:ml-[39.13px] desk:h-[160.42px] desk:w-[1359.77px] desk:p-0"
+      className={cn(
+        'relative z-10 mx-4 mt-20 scroll-mt-24 overflow-hidden rounded-[24px] bg-canvas p-6 shadow-[0px_8px_24px_0px_rgba(33,37,41,0.06)] desk:mx-0 desk:mt-[102.73px] desk:ml-[39.13px] desk:h-[160.42px] desk:w-[1359.77px] desk:p-0',
+        className,
+      )}
     >
       <img src="/assets/newsletter.jpg" alt="" className="absolute top-0 left-0 h-[100.01%] w-full object-cover object-left desk:object-fill" />
       <h2 id="novidades-title" className={cn('relative text-[20px] leading-7 font-medium text-ink', ABS)} style={at(40.11, 48.61)}>
@@ -130,9 +135,9 @@ export function Footer() {
       <div className="relative desk:mx-auto desk:h-full desk:w-[1407.72px]">
       <motion.div {...reveal} viewport={{ once: true, amount: 0.3 }} variants={stagger(0.1)} className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-4 desk:static desk:block">
         <motion.div variants={fadeUp} className={cn('desk:h-[190.75px] desk:w-[328.69px]', ABS)} style={at(23.47, 152.61)}>
-          <a href="#reservas" className="block h-[39px] w-[100px] desk:-mt-[0.33px]" aria-label="C-TRIP — início">
+          <SmartLink href="/" className="block h-[39px] w-[100px] desk:-mt-[0.33px]" aria-label="C-TRIP — início">
             <img src="/assets/logo.png" alt="C-TRIP" width={100} height={39} className="size-full object-cover" />
-          </a>
+          </SmartLink>
           <p className="mt-6 text-[16px] leading-7 text-white/88 desk:mt-[32.44px] desk:whitespace-nowrap">
             <Lines lines={['Porque cada viagem merece começar', 'com segurança e conforto']} />
           </p>
@@ -147,9 +152,9 @@ export function Footer() {
             <ul className="mt-5 flex flex-col desk:mt-[37.62px]" style={{ gap: LINK_TOPS_GAP }}>
               {col.links.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className={cn('text-[16px] leading-6 whitespace-nowrap text-white/88 hover:text-white', linkClass)}>
+                  <SmartLink href={link.href} className={cn('text-[16px] leading-6 whitespace-nowrap text-white/88 hover:text-white', linkClass)}>
                     {link.label}
-                  </a>
+                  </SmartLink>
                 </li>
               ))}
             </ul>
