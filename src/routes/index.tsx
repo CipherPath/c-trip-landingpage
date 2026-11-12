@@ -8,6 +8,7 @@ import { Highlights } from '../components/landing/Highlights'
 import { OperationalArea } from '../components/landing/OperationalArea'
 import { Services } from '../components/landing/Services'
 import { Stats } from '../components/landing/Stats'
+import { StickyHeader } from '../components/landing/StickyHeader'
 import { Testimonials } from '../components/landing/Testimonials'
 import { WhyUs } from '../components/landing/WhyUs'
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute('/')({
 function HomePage() {
   return (
     <MotionConfig reducedMotion="user">
+      <StickyHeader />
       <div className="overflow-x-clip">
         <div className="canvas mx-auto pb-2 desk:w-full desk:pb-[15.64px]">
           <Hero />

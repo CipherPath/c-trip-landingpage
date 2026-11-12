@@ -21,7 +21,7 @@ export function About() {
     <section
       ref={root}
       id="sobre"
-      className="relative mx-4 mt-16 flex scroll-mt-6 flex-col-reverse gap-10 desk:mx-[31.3px] desk:mt-[88.04px] desk:block desk:h-[621.19px]"
+      className="relative mx-4 mt-16 flex scroll-mt-24 flex-col-reverse gap-10 desk:mx-[31.3px] desk:mt-[88.04px] desk:block desk:h-[621.19px]"
     >
       <div className="grid grid-cols-2 gap-3 desk:block">
         {PHOTOS.map((photo, i) => (

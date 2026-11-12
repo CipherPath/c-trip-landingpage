@@ -3,15 +3,27 @@ import type { Variants } from 'framer-motion'
 import { EASE_OUT, reveal, revealUp, stagger } from '../../lib/motion'
 import { ABS, Lines, Tag, at, bodyClass, cn, headingClass } from './primitives'
 
-/* Cards rise in sequence; the featured one also tilts into its 1.3° angle (CSS rotate + motion rotate). */
+/*
+ * Cards rise in sequence and rest flat, all alike. On hover a card takes the tilted style of the first card
+ * in Figma (rotated 1.3°, #eef0f2 border, 0 10 30 shadow) and lifts slightly; it settles back on leave.
+ */
 const cardVariants: Variants = {
-  hidden: (featured: boolean) => ({ opacity: 0, y: 64, rotate: featured ? -4 : 0 }),
-  show: { opacity: 1, y: 0, rotate: 0, transition: { duration: 1, ease: EASE_OUT } },
-  hover: (featured: boolean) => ({
-    y: -8,
-    boxShadow: featured ? '0px 22px 44px 0px rgba(33,37,41,0.16)' : '0px 18px 40px 0px rgba(33,37,41,0.10)',
-    transition: { duration: 0.4, ease: EASE_OUT },
-  }),
+  hidden: { opacity: 0, y: 64 },
+  show: {
+    opacity: 1,
+    y: 0,
+    rotate: 0,
+    borderColor: '#dee2e6',
+    boxShadow: '0px 10px 30px 0px rgba(33,37,41,0)',
+    transition: { duration: 0.6, ease: EASE_OUT, opacity: { duration: 1 }, y: { duration: 1, ease: EASE_OUT } },
+  },
+  hover: {
+    rotate: 1.3,
+    y: -6,
+    borderColor: '#eef0f2',
+    boxShadow: '0px 10px 30px 0px rgba(33,37,41,0.1)',
+    transition: { duration: 0.45, ease: EASE_OUT },
+  },
 }
 
 const illusVariants: Variants = {
@@ -29,7 +41,6 @@ type Card = {
   illus: { src: string; x: number; y: number; w: number; h: number }
   titleX: number
   bodyX: number
-  featured?: boolean
 }
 
 /* Inner coordinates are Figma values minus the 1px border (CSS positions from the padding box). */
@@ -38,12 +49,11 @@ const CARDS: readonly Card[] = [
     title: 'Transportadoras de Confiança',
     body: ['Trabalhamos com operadores como a Macon,', 'a Angoré Bus e a Labuta, com frotas', 'modernas, ar condicionado e conforto', 'para as viagens longas.'],
     x: 15.75,
-    y: 325.75,
+    y: 324.77,
     w: 440,
     illus: { src: '/assets/why-transportadoras.jpg', x: 144.45, y: 28.38, w: 152, h: 131 },
     titleX: 219,
     bodyX: 219.5,
-    featured: true,
   },
   {
     title: 'Bilhete Digital',
@@ -111,15 +121,9 @@ export function WhyUs() {
         {CARDS.map((card) => (
           <motion.article
             key={card.title}
-            custom={!!card.featured}
             variants={cardVariants}
             whileHover="hover"
-            className={cn(
-              'relative flex flex-col items-center overflow-hidden rounded-[16px] border bg-canvas px-5 pt-6 pb-7 desk:absolute desk:top-(--y) desk:left-(--x) desk:block desk:h-[360px] desk:w-(--w) desk:p-0',
-              card.featured
-                ? 'border-[#eef0f2] shadow-[0px_10px_30px_0px_rgba(33,37,41,0.1)] desk:rotate-[1.3deg]'
-                : 'border-line',
-            )}
+            className="relative flex flex-col items-center overflow-hidden rounded-[16px] border border-line bg-canvas px-5 pt-6 pb-7 hover:z-10 desk:absolute desk:top-(--y) desk:left-(--x) desk:block desk:h-[360px] desk:w-(--w) desk:p-0"
             style={at(card.x, card.y, { w: card.w })}
           >
             <motion.img

@@ -1,15 +1,20 @@
 import { useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import type { FormEvent, RefObject } from 'react'
 import { ABS, ArrowPillButton, Lines, at, cn } from './primitives'
 import { CITIES, NAV_LINKS } from '../../constants/cities'
 import { EASE_OUT, MQ, gsap, useGSAP } from '../../lib/motion'
+import { STICKY_THRESHOLD } from './StickyHeader'
 
 function Navbar() {
   const [open, setOpen] = useState(false)
+  // Fades and lifts away while the fixed header (StickyHeader) slides in over the same scroll distance.
+  const { scrollY } = useScroll()
+  const navOpacity = useTransform(scrollY, [0, STICKY_THRESHOLD], [1, 0])
+  const navY = useTransform(scrollY, [0, STICKY_THRESHOLD], [0, -16])
 
   return (
-    <header className="relative flex w-full items-center justify-between desk:absolute desk:inset-x-0 desk:top-0 desk:block desk:h-[80.22px]">
+    <motion.header style={{ opacity: navOpacity, y: navY }} className="relative z-10 flex w-full items-center justify-between desk:absolute desk:inset-x-0 desk:top-0 desk:block desk:h-[80.22px]">
       <a data-intro="nav" href="#reservas" className={cn('block h-[39px] w-[100px]', ABS)} style={at(23.36, 21.36)} aria-label="C-TRIP — início">
         <img src="/assets/logo.png" alt="C-TRIP" width={100} height={39} className="size-full object-cover" />
       </a>
@@ -92,7 +97,7 @@ function Navbar() {
         </motion.div>
       )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   )
 }
 

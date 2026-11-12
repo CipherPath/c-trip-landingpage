@@ -61,7 +61,7 @@ export function Newsletter() {
       {...revealUp(0, 0.4)}
       id="novidades"
       aria-labelledby="novidades-title"
-      className="relative z-10 mx-4 mt-20 scroll-mt-6 overflow-hidden rounded-[24px] bg-canvas p-6 shadow-[0px_8px_24px_0px_rgba(33,37,41,0.06)] desk:mx-0 desk:mt-[102.73px] desk:ml-[39.13px] desk:h-[160.42px] desk:w-[1359.77px] desk:p-0"
+      className="relative z-10 mx-4 mt-20 scroll-mt-24 overflow-hidden rounded-[24px] bg-canvas p-6 shadow-[0px_8px_24px_0px_rgba(33,37,41,0.06)] desk:mx-0 desk:mt-[102.73px] desk:ml-[39.13px] desk:h-[160.42px] desk:w-[1359.77px] desk:p-0"
     >
       <img src="/assets/newsletter.jpg" alt="" className="absolute top-0 left-0 h-[100.01%] w-full object-cover object-left desk:object-fill" />
       <h2 id="novidades-title" className={cn('relative text-[20px] leading-7 font-medium text-ink', ABS)} style={at(40.11, 48.61)}>

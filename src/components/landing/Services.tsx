@@ -40,7 +40,7 @@ export function Services() {
   return (
     <section
       id="servicos"
-      className="relative mx-4 mt-20 flex scroll-mt-6 flex-col items-start desk:mx-[31.3px] desk:mt-[78.26px] desk:block desk:h-[1078.03px]"
+      className="relative mx-4 mt-20 flex scroll-mt-24 flex-col items-start desk:mx-[31.3px] desk:mt-[78.26px] desk:block desk:h-[1078.03px]"
     >
       <Tag width={179.02} className={ABS} style={at(0.97, 4.88)}>
         Os Nossos Serviços
