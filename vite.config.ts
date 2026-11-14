@@ -11,9 +11,9 @@ export default defineConfig({
     allowedHosts: ['.sslip.io'],
   },
   preview: {
-    port: 3000,
     host: '0.0.0.0',
-    allowedHosts: ['.sslip.io'],
+    port: 3000,
+    allowedHosts: true,
   },
   resolve: {
     tsconfigPaths: true,
