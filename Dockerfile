@@ -16,9 +16,11 @@ WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3000
 
-COPY --from=build --chown=node:node /app/node_modules ./node_modules
-COPY --from=build --chown=node:node /app/package.json /app/package-lock.json ./
-COPY --from=build --chown=node:node /app/dist ./dist
+# `vite preview` reads vite.config.ts (preview.allowedHosts, the TanStack Start plugin that serves the SSR
+# build), and that plugin also resolves the app sources (src/router.tsx) when it starts. Copying only dist/
+# made Vite start without any config: every host was blocked and the app was not served. So the runtime
+# keeps the whole built project.
+COPY --from=build --chown=node:node /app ./
 
 USER node
 EXPOSE 3000
