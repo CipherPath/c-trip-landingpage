@@ -7,6 +7,9 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  preview: {
+    allowedHosts: ['jnzp1nziupmszvup39ymqms2.169.58.67.35.sslip.io'],
+  },
   resolve: {
     tsconfigPaths: true,
     dedupe: ['react', 'react-dom'],
